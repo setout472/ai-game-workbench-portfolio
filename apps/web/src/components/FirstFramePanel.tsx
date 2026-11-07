@@ -1,0 +1,135 @@
+import { ImagePlus, Upload } from "lucide-react";
+import {
+  CHARACTER_DIRECTIONS,
+  CHARACTER_DIRECTION_LABELS,
+  type CharacterDirection,
+  type TargetSize
+} from "@ai-game-workbench/core";
+
+interface FirstFramePanelProps {
+  targetSize: TargetSize;
+  imageGenerationSize: number;
+  keyColor: string;
+  direction: CharacterDirection;
+  imagePrompt: string;
+  imagePromptInstructions: string;
+  finalImagePrompt: string;
+  firstFramePublicUrl: string;
+  onFirstFrameUpload: (file: File) => void;
+  onFirstFramePublicUrlChange: (url: string) => void;
+  onImageGenerationSizeChange: (size: number) => void;
+  onDirectionChange: (direction: CharacterDirection) => void;
+  onImagePromptChange: (prompt: string) => void;
+  onImagePromptInstructionsChange: (prompt: string) => void;
+  onFinalImagePromptChange: (prompt: string) => void;
+  onStatus: (status: string) => void;
+}
+
+export function FirstFramePanel({
+  targetSize,
+  imageGenerationSize,
+  keyColor,
+  direction,
+  imagePrompt,
+  imagePromptInstructions,
+  finalImagePrompt,
+  firstFramePublicUrl,
+  onFirstFrameUpload,
+  onFirstFramePublicUrlChange,
+  onImageGenerationSizeChange,
+  onDirectionChange,
+  onImagePromptChange,
+  onImagePromptInstructionsChange,
+  onFinalImagePromptChange,
+  onStatus
+}: FirstFramePanelProps) {
+  return (
+    <section className="panel">
+      <div className="panel-title">首帧</div>
+      <div className="two-actions">
+        <label className="tool-button file-action">
+          <Upload size={16} /> 上传首帧
+          <input
+            aria-label="上传首帧文件"
+            className="visually-hidden"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              if (file) {
+                onFirstFrameUpload(file);
+              }
+            }}
+          />
+        </label>
+        <button
+          className="tool-button"
+          type="button"
+          onClick={() => onStatus("图片生成入口已准备，生成结果会显示到首帧预览。")}
+        >
+          <ImagePlus size={16} /> 生成首帧
+        </button>
+      </div>
+      <label className="field">
+        朝向
+        <select
+          value={direction}
+          onChange={(event) => onDirectionChange(event.target.value as CharacterDirection)}
+        >
+          {CHARACTER_DIRECTIONS.map((item) => (
+            <option value={item} key={item}>
+              {CHARACTER_DIRECTION_LABELS[item]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="field">
+        图片生成尺寸
+        <input
+          type="number"
+          min={64}
+          max={1024}
+          step={1}
+          value={imageGenerationSize}
+          onChange={(event) => onImageGenerationSizeChange(Number(event.target.value))}
+        />
+      </label>
+      <label className="field">
+        首帧公网 URL
+        <input
+          type="url"
+          placeholder="https://your-domain.example/first-frame.png"
+          value={firstFramePublicUrl}
+          onChange={(event) => onFirstFramePublicUrlChange(event.target.value)}
+        />
+      </label>
+      <label className="field">
+        图片提示词
+        <textarea
+          value={imagePrompt}
+          onChange={(event) => onImagePromptChange(event.target.value)}
+          rows={3}
+        />
+      </label>
+      <label className="field">
+        图片提示词约束
+        <textarea
+          value={imagePromptInstructions}
+          onChange={(event) => onImagePromptInstructionsChange(event.target.value)}
+          rows={4}
+        />
+      </label>
+      <label className="field">
+        最终图片提示词
+        <textarea
+          value={finalImagePrompt}
+          onChange={(event) => onFinalImagePromptChange(event.target.value)}
+          rows={5}
+        />
+      </label>
+      <div className="hint-line">
+        导出目标 {targetSize}px，生成首帧 {imageGenerationSize}px，抠图背景 {keyColor}。OpenRouter 视频首帧需要公网 HTTPS URL。
+      </div>
+    </section>
+  );
+}
